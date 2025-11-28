@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -23,7 +24,7 @@ namespace app
 		uint32_t _reconnect_ms = 0;    // Время переподключения.
 		uint32_t _last_connect_ms = 0; // Время попытки подключения.
 		std::vector<uint8_t> _buf;     // Буфер данных.
-		int _data_size = 0;            // Количество прочитанных данных.
+		size_t _data_size = 0;         // Количество прочитанных данных.
 
 		// Подключение к заданному серверу.
 		bool _connect()
@@ -38,7 +39,6 @@ namespace app
 				_sock = -1;
 				return print_errno("TCPClient connect");
 			}
-			std::cout << _sock << std::endl;
 			return true;
 		}
 
@@ -70,7 +70,10 @@ namespace app
 			_buf.resize(cfg.get<uint32_t>("buf_size", 1024));
 			if (_sock >= 0)
 				close(_sock);
-			return _connect();
+			bool ok = _connect();
+			if (_reconnect_ms > 0)
+				return true;
+			return ok;
 		}
 
 		bool send_data(const char* const data, size_t size)
@@ -105,14 +108,17 @@ namespace app
 				if (!_connect())
 					return false;
 			}
-			_data_size = static_cast<int>(recv(_sock, _buf.data(), _buf.size(), MSG_DONTWAIT));
-			if (_data_size < 0 && errno != 11)
+			const auto data_size = recv(_sock, _buf.data(), _buf.size(), MSG_DONTWAIT);
+			if (data_size < 0)
 			{
-				std::cout << _sock << std::endl;
-				print_errno("TCPClient recv");
-				end();
-				// _last_connect_ms = time::ms() + _reconnect_ms;
+				if (errno != 11)
+				{
+					print_errno("TCPClient recv");
+					end();
+				}
+				return false;
 			}
+			_data_size = data_size;
 			return _data_size > 0;
 		}
 
@@ -121,7 +127,7 @@ namespace app
 			return _buf.data();
 		}
 
-		int data_size() const
+		size_t data_size() const
 		{
 			return _data_size;
 		}

@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -32,12 +33,24 @@ namespace app
 	}
 
 	// Получение текущего времени в виде строки.
-	std::string time_str(const char* fmt)
+	std::string time_str(const std::string& fmt)
 	{
 		auto t = std::time(nullptr);
 		auto tm = *std::localtime(&t);
 		std::ostringstream oss;
-		oss << std::put_time(&tm, fmt);
+		oss << std::put_time(&tm, fmt.c_str());
 		return oss.str();
+	}
+
+	template <typename T, size_t N>
+	void print_arr(const std::array<T, N>& v)
+	{
+		if (N > 0)
+		{
+			std::cout << v[0];
+			for (size_t i = 1; i < N; ++i)
+				std::cout << " " << v[i];
+		}
+		std::cout << std::endl;
 	}
 }

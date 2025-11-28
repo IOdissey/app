@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -47,14 +48,14 @@ namespace app
 				for (size_t j = i + 1; j < len; ++j)
 					ws_arr[j - 1] = ws_arr[j];
 				ws_arr.resize(len - 1);
-				std::cout << "ws count: " <<  ws_arr.size() << std::endl;
+				std::cout << "ws clients: " <<  ws_arr.size() << std::endl;
 			}
 
 			// Добавление подключения.
 			void add(mg_connection* c)
 			{
 				ws_arr.push_back(c);
-				std::cout << "ws count: " <<  ws_arr.size() << std::endl;
+				std::cout << "ws clients: " <<  ws_arr.size() << std::endl;
 				if (!is_ws_new)
 				{
 					std::lock_guard<std::mutex> guard(mutex);
@@ -94,9 +95,9 @@ namespace app
 			else if (ev == MG_EV_WS_MSG)
 			{
 				mg_ws_message* wm = (mg_ws_message*)ev_data;
-				server_data_struct* server_data = (server_data_struct*)fn_data;
 				if (wm->data.len < 1)
 					return;
+				server_data_struct* server_data = (server_data_struct*)fn_data;
 				{
 					std::lock_guard<std::mutex> guard(server_data->mutex);
 					server_data->json_get = std::string(wm->data.ptr, wm->data.len);
@@ -137,8 +138,8 @@ namespace app
 			end();
 			_min_ms = cfg.get("min_ms", 5);
 			int port = cfg.get("port", 8080, 1, 65535);
-			mg_mgr_init(&_mgr);
 			std::string url = "http://0.0.0.0:" + std::to_string(port);
+			mg_mgr_init(&_mgr);
 			mg_http_listen(&_mgr, url.c_str(), WSServer::_request_handler, &_server_data);
 			thread_run();
 			_ok = true;

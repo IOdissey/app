@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -41,7 +42,6 @@ namespace app
 
 		bool beg(int argc, char* argv[])
 		{
-			_cfg.use_print(true);
 			if (!_cfg.open(argc, argv))
 			{
 				app::print_error("Config not open");
@@ -54,12 +54,12 @@ namespace app
 				app::print_error("Module not started: ", "ws_server");
 				return false;
 			}
-			if (!_cfg.section("app"))
-				return false;
+			_cfg.section("app");
 			_rate.ms(_cfg.get<uint32_t>("period", 10));
 			_rate_send.ms(_cfg.get<uint32_t>("period_send", 100));
 			_debug = _cfg.get("debug", _debug);
 			_state.ns = app::time::ns();
+			_state.ms = static_cast<uint32_t>(_state.ns / 1000000);
 			return true;
 		}
 
@@ -82,7 +82,7 @@ namespace app
 			return true;
 		}
 
-		virtual void send_data(app::Json&, TState&)
+		virtual void send_data(app::Json&, TState&, bool)
 		{
 		}
 
@@ -92,6 +92,7 @@ namespace app
 			uint64_t ns = app::time::ns();
 			double dt = 1e-9 * static_cast<double>(ns - _state.ns);
 			_state.ns = ns;
+			_state.ms = static_cast<uint32_t>(_state.ns / 1000000);
 			//
 			const size_t size = _modules.size();
 			for (size_t i = 0; i < size; ++i)
@@ -109,8 +110,9 @@ namespace app
 			}
 			else if (_rate_send.ok())
 			{
+				bool new_connect = _ws_server.is_ws_new();
 				_json.beg();
-				send_data(_json, _state);
+				send_data(_json, _state, new_connect);
 				_ws_server.set_json(_json.end());
 			}
 		}

@@ -1,9 +1,11 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -78,7 +80,7 @@ namespace app
 		void print_end(bool def)
 		{
 			if (def)
-				std::cout << " \033[1;90m(missing)";
+				std::cout << " \033[1;90m(def)";
 			std::cout << "\033[0m" << std::endl;
 		}
 
@@ -212,14 +214,14 @@ namespace app
 		std::vector<char> _buf;    // Содержит прочитанный файл.
 		std::vector<Param> _param; // Список параметров.
 		uint32_t _section = 0;     // Текущая секция.
-		bool _use_print = true;    // Вывод прочитанных значений.
+		bool _use_print = false;   // Вывод прочитанных значений.
 
 		// Разбор файла.
 		void _parse()
 		{
 			state_enum state = state_enum::PARAM_BEG;
 			Param param;
-			uint32_t tmp;
+			uint32_t tmp = 0;
 			const uint32_t len = static_cast<uint32_t>(_buf.size());
 			uint32_t i = 0;
 			// BOM utf-8.
@@ -404,6 +406,8 @@ namespace app
 				return false;
 			}
 			_parse();
+			if (section("cfg"))
+				_use_print = get("debug", _use_print);
 			return true;
 		}
 

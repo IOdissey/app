@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -7,7 +8,9 @@
 #include <cmath>
 #include <fstream>
 #include <vector>
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
 #include <rapidjson/istreamwrapper.h>
@@ -244,7 +247,7 @@ namespace app
 			set("");
 		}
 
-		// Окончание формирования json. 
+		// Окончание формирования json.
 		std::string end()
 		{
 			_buffer.Clear();
@@ -253,7 +256,7 @@ namespace app
 			return std::string(_buffer.GetString(), _buffer.GetSize());
 		}
 
-		// Окончание формирования json. 
+		// Окончание формирования json.
 		const char* end(size_t& len)
 		{
 			_buffer.Clear();
@@ -322,6 +325,14 @@ namespace app
 				_section->AddMember(rapidjson::Value(name, _json.GetAllocator()), rapidjson::Value(val), _json.GetAllocator());
 			else
 				_section->AddMember(rapidjson::StringRef(name), val, _json.GetAllocator());
+		}
+
+		void set(const char* name, const std::string& val, const bool key_copy = false)
+		{
+			if (key_copy)
+				_section->AddMember(rapidjson::Value(name, _json.GetAllocator()), rapidjson::Value(val.c_str(), _json.GetAllocator()), _json.GetAllocator());
+			else
+				_section->AddMember(rapidjson::StringRef(name), rapidjson::Value(val.c_str(), _json.GetAllocator()), _json.GetAllocator());
 		}
 
 		// Значение с округлением.

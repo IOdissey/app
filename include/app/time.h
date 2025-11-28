@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -41,7 +42,7 @@ namespace app
 		{
 			return static_cast<uint32_t>((ns() + 500000UL) / 1000000UL);
 		}
-	
+
 		void sleep_ns(uint32_t ns, uint32_t sec = 0)
 		{
 			timespec deadline;

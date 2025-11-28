@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -6,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include "config.h"
 #include "utils.h"
 
 
@@ -17,23 +19,23 @@ namespace app
 		std::ofstream _file;
 		int _precision = 3;
 		int _max_size = 100000000;
-		std::string _affix = ".csv";
+		std::string _folder = "logs";
 
 	public:
-		bool beg(int max_size, int precision = 3, const std::string& affix = "")
+		bool beg(const app::Config& cfg)
 		{
-			_max_size = max_size;
-			_precision = precision;
-			_affix = affix + ".csv";
-			return true;
+			_max_size = cfg.get("max_size", _max_size);
+			_precision = cfg.get("precision", _precision);
+			_folder = cfg.get<std::string>("folder", _folder);
+			return open();
 		}
 
 		bool open()
 		{
-			std::string path = time_str("logs/%Y-%m-%d/");
+			std::string path = time_str(_folder + "/%Y-%m-%d/");
 			if (!std::filesystem::exists(path))
 				std::filesystem::create_directories(path);
-			path += time_str("%H-%M-%S") + _affix;
+			path += time_str("%H-%M-%S.csv");
 			_file.open(path);
 			if (!_file.good())
 				return false;

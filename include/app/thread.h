@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -15,12 +16,18 @@ namespace app
 	private:
 		volatile bool _thread_active = false; // Флаг активности задачи.
 		volatile bool _thread_stop = false;   // Команда того, что процесс должен быть остановлен.
+		uint32_t _sleep_us = 100;
 
 		virtual void _thread_run()
 		{
 		}
 
 	public:
+		void set_sleep_us(uint32_t sleep_us)
+		{
+			_sleep_us = sleep_us;
+		}
+
 		void thread_run()
 		{
 			if (_thread_active)
@@ -31,7 +38,7 @@ namespace app
 			{
 				while (!_thread_stop)
 				{
-					app::time::sleep_us(100);
+					app::time::sleep_us(_sleep_us);
 					_thread_run();
 				}
 				_thread_active = false;

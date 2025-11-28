@@ -1,4 +1,5 @@
-// Copyright (c) 2024 Alexander Abramenkov. All rights reserved.
+// https://github.com/IOdissey/app
+// Copyright (c) 2025 Alexander Abramenkov. All rights reserved.
 // Distributed under the MIT License (license terms are at https://opensource.org/licenses/MIT).
 
 #pragma once
@@ -68,37 +69,5 @@ namespace math
 			return a - 180.0;
 		}
 		return a;
-	}
-
-	// http://www.movable-type.co.uk/scripts/latlong.html
-	// TODO. Проверка для корня.
-	void geo_inverse(double lat1, double lon1, double lat2, double lon2, double& m_lat, double& m_lon)
-	{
-		// Радиус Земли в метрах (удвоенный).
-		constexpr double r = 2.0 * 6378137.0;
-		// Переводим в радианы.
-		lat1 *= DEG_RAD;
-		lon1 *= DEG_RAD;
-		lat2 *= DEG_RAD;
-		lon2 *= DEG_RAD;
-		double d_lat = (lat2 - lat1) * 0.5;
-		double d_lon = (lon2 - lon1) * 0.5;
-		// double a = std::sin(d_lat) * std::sin(d_lat) + std::cos(lat1) * std::cos(lat2) * std::sin(d_lon) * std::sin(d_lon);
-		// d_lon = 0
-		// Для небольших перемещений.
-		// |d_lat| << 90 градусов => |sin_d_lat| < 1.0
-		double sin_d_lat = std::sin(d_lat);
-		double a_lat = sin_d_lat * sin_d_lat;
-		m_lat = r * std::atan(std::sqrt(a_lat / (1.0 - a_lat)));
-		if (d_lat < 0)
-			m_lat = -m_lat;
-		// d_lat = 0
-		// Для небольших перемещений.
-		// |d_lon| << 90 градусов => |sin_d_lon| < 1.0
-		double sin_d_lon = std::sin(d_lon);
-		double a_lon = std::cos(lat1) * std::cos(lat2) * sin_d_lon * sin_d_lon;
-		m_lon = r * std::atan(std::sqrt(a_lon / (1.0 - a_lon)));
-		if (d_lon < 0)
-			m_lon = -m_lon;
 	}
 }
